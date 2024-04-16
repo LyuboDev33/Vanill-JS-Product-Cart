@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <title>Product Cart</title>
+</head>
+
+<body>
+
+  <header>
+
+    <div class="product-cart-main-page">
+      <i id="shopCart" class="fa-solid fa-cart-shopping"><span class="numbCart"></span></i>
+    </div>
+
+  </header>
+
+  <main>
+
+    <div class="container">
+
+
+      <div class="allProducts">
+
+        <template>
+          <div class="product">
+            <img class="image" src="https://lubodev.com/images/lyuboimage.jpg">
+            <p class="price">20</p>
+            <p class="title">Product 1</p>
+            <button class="addProductBtn">Add To Cart</button>
+          </div>
+        </template>
+
+
+      </div>
+
+    </div>
+
+    <div class="navBackground">
+      <nav id="navCart">
+
+
+
+        <div class="navProductList">
+
+          <div class="navProduct">
+            <img class="navImage" src="https://lubodev.com/images/lyuboimage.jpg">
+            <p class="navPrice">20</p>
+
+            <div class="plusMinusDiv">
+              <i class="fa-solid fa-minus"></i>
+              <p class="quantity">1</p>
+              <i class="fa-solid fa-plus"></i>
+            </div>
+
+            <p class="navTitle">Blqblq blq blq</p>
+            <button class="removeProduct">Remove product</button>
+          </div>
+
+         
+
+        </div>
+
+
+        <script>
+
+          let plus = document.querySelectorAll('.fa-solid.fa-plus');
+          let val = 1;
+          let priceResult;
+
+      
+  plus.forEach(btnPlus => { 
+
+  btnPlus.addEventListener('click', function () { 
+
+    let divParent = btnPlus.parentElement;
+    let productParent = btnPlus.parentElement.parentElement;
+
+    let quantityNumb = Number(divParent.querySelector('.quantity').innerHTML);
+    const priceTag = Number(productParent.querySelector('.navPrice').innerHTML);
+    
+
+    val = 1 + quantityNumb;
+
+    divParent.querySelector('.quantity').innerHTML = val;
+
+
+    priceResult = priceTag * val;
+
+    productParent.querySelector('.navPrice').innerHTML = priceResult;
+
+
+
+  });
+
+});
+
+
+        
+        </script>
+
+
+        <i class="fa-solid fa-x"></i>
+      </nav>
+    </div>
+
+
+
+
+  </main>
+
+  <!-- POP UP WHEN PRODUCT IS ADDED -->
+
+  <div></div>
+
+  <!-- POP UP WHEN PRODUCT IS ADDED -->
+
+
+
+
+  <script>
+
+    let cart = document.querySelector('#shopCart');
+    let navBackground = document.querySelector('.navBackground')
+    let navCart = document.querySelector('#navCart');
+    let closeCart = document.querySelector('.fa-solid.fa-x');
+
+    let allProducts = document.querySelector('.allProducts');
+
+
+
+    fetch('https://fakestoreapi.com/products')
+      .then(res => res.json())
+      .then(json => {
+
+        let products = json.slice(0, 10);
+
+
+        for (let i = 0; i < products.length; i++) {
+
+
+
+          let image = products[i].image;
+          let price = Number(products[i].price);
+          let name = products[i].title;
+
+          allProducts.insertAdjacentHTML('afterbegin', `
+          <div class="product">
+          <img class="image" src="${image}">
+          <p class="price">${price}</p>
+          <p class="title">${name}</p>
+          <button class="addProductBtn">Add To Cart</button>
+        </div>
+          `);
+        };
+
+
+        let addProductBtn = document.querySelectorAll('.addProductBtn');
+
+        let addedTitle;
+        let addedPrice;
+        let addedImage;
+
+
+        addProductBtn.forEach(button => {
+
+          button.addEventListener('click', function () {
+
+
+
+            addedTitle = button.parentElement.querySelector('.title').textContent;
+            addedImage = button.parentElement.querySelector('.image').getAttribute('src');
+            addedPrice = Number(button.parentElement.querySelector('.price').textContent);
+            openNavBar();
+
+
+          });
+
+        });
+
+
+
+
+
+      });
+
+
+
+
+
+    cart.addEventListener('click', function () {
+
+      openNavBar();
+
+
+    });
+
+    closeCart.addEventListener('click', function () {
+
+      closeNavBar();
+
+    });
+
+    // FUNCTION FOR OPENING THE RIGHT NAVBAR
+
+    function openNavBar() {
+      setTimeout(function () {
+        navBackground.classList.toggle('closed');
+
+        setTimeout(function () {
+          navCart.classList.toggle('nav-toggle');
+          closeCart.classList.toggle('closed');
+
+
+        }, 100)
+
+      }, 10)
+    }
+    // FUNCTION FOR OPENING THE RIGHT NAVBAR
+
+
+    // FUNCTION FOR CLOSING THE RIGHT NAVBAR
+    function closeNavBar() {
+      setTimeout(function () {
+
+        navCart.classList.toggle('nav-toggle');
+        closeCart.classList.toggle('closed');
+
+
+        setTimeout(function () {
+
+
+          navBackground.classList.toggle('closed');
+
+
+        }, 500)
+
+      }, 10);
+    }
+    // FUNCTION FOR CLOSING THE RIGHT NAVBAR
+
+
+    // FUNCTION FOR MULTIPLYING 
+    
+
+
+    // FUNCTION FOR MULTIPLYING
+
+
+  </script>
+
+
+</body>
+
+</html>
