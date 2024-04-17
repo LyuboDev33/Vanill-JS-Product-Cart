@@ -44,65 +44,37 @@
       <nav id="navCart">
 
 
-
         <div class="navProductList">
+          <p class="emptyCart"></p>
 
-          <div class="navProduct">
+          <!-- <div class="navProduct">
             <img class="navImage" src="https://lubodev.com/images/lyuboimage.jpg">
             <p class="navPrice">20</p>
-
+            <input value="20" type="hidden">
             <div class="plusMinusDiv">
               <i class="fa-solid fa-minus"></i>
               <p class="quantity">1</p>
               <i class="fa-solid fa-plus"></i>
             </div>
-
             <p class="navTitle">Blqblq blq blq</p>
             <button class="removeProduct">Remove product</button>
-          </div>
+          </div> -->
 
-         
 
         </div>
+        <hr>
 
+        <div class="checkoutPrice">
+          <div class="totalCalc">
+            <p>Общо</p>
+            <p class="totalSum"></p>
+          </div>
 
-        <script>
+          <div class="goToPayment">
+            Към плащане
+          </div>
 
-          let plus = document.querySelectorAll('.fa-solid.fa-plus');
-          let val = 1;
-          let priceResult;
-
-      
-  plus.forEach(btnPlus => { 
-
-  btnPlus.addEventListener('click', function () { 
-
-    let divParent = btnPlus.parentElement;
-    let productParent = btnPlus.parentElement.parentElement;
-
-    let quantityNumb = Number(divParent.querySelector('.quantity').innerHTML);
-    const priceTag = Number(productParent.querySelector('.navPrice').innerHTML);
-    
-
-    val = 1 + quantityNumb;
-
-    divParent.querySelector('.quantity').innerHTML = val;
-
-
-    priceResult = priceTag * val;
-
-    productParent.querySelector('.navPrice').innerHTML = priceResult;
-
-
-
-  });
-
-});
-
-
-        
-        </script>
-
+        </div>
 
         <i class="fa-solid fa-x"></i>
       </nav>
@@ -124,13 +96,33 @@
 
   <script>
 
+    let navProductList = document.querySelector('.navProductList');
+    let productsInsideCart = document.querySelectorAll('.navProduct');
+    let numbCart = document.querySelector('.numbCart')
+
     let cart = document.querySelector('#shopCart');
     let navBackground = document.querySelector('.navBackground')
     let navCart = document.querySelector('#navCart');
     let closeCart = document.querySelector('.fa-solid.fa-x');
 
     let allProducts = document.querySelector('.allProducts');
+    let emptyCart = document.querySelector('.emptyCart');
 
+    if (productsInsideCart.length > 0) {
+
+      numbCart.innerHTML = productsInsideCart.length;
+
+      emptyCart.style.display = "none";
+
+    } else if (productsInsideCart.length === 0) {
+
+      emptyCart.innerHTML = "Your cart is empty!";
+      navProductList.style.display = "flex";
+      navProductList.style.alignItems = "flex-start";
+      navProductList.style.justifyContent = "center";
+
+      numbCart.innerHTML = 0;
+    }
 
 
     fetch('https://fakestoreapi.com/products')
@@ -143,7 +135,6 @@
         for (let i = 0; i < products.length; i++) {
 
 
-
           let image = products[i].image;
           let price = Number(products[i].price);
           let name = products[i].title;
@@ -151,7 +142,7 @@
           allProducts.insertAdjacentHTML('afterbegin', `
           <div class="product">
           <img class="image" src="${image}">
-          <p class="price">${price}</p>
+          <p class="price">${price} $</p>
           <p class="title">${name}</p>
           <button class="addProductBtn">Add To Cart</button>
         </div>
@@ -168,13 +159,30 @@
 
         addProductBtn.forEach(button => {
 
+
+
           button.addEventListener('click', function () {
-
-
 
             addedTitle = button.parentElement.querySelector('.title').textContent;
             addedImage = button.parentElement.querySelector('.image').getAttribute('src');
-            addedPrice = Number(button.parentElement.querySelector('.price').textContent);
+            addedPrice = parseFloat(button.parentElement.querySelector('.price').textContent);
+
+            let productArray = JSON.parse(sessionStorage.getItem('productArray'));
+            if (!productArray) {
+              productArray = [];
+            }
+
+            let productObject = {
+              prodTitle: addedTitle,
+              prodImg: addedImage,
+              prodPrice: addedPrice
+            };
+
+            productArray.push(productObject);
+
+            sessionStorage.setItem('productArray', JSON.stringify(productArray));
+
+
             openNavBar();
 
 
@@ -183,14 +191,11 @@
         });
 
 
-
-
-
       });
 
+    let sessionProducts = JSON.parse(sessionStorage.getItem('productArray'));
 
-
-
+    
 
     cart.addEventListener('click', function () {
 
@@ -206,7 +211,6 @@
     });
 
     // FUNCTION FOR OPENING THE RIGHT NAVBAR
-
     function openNavBar() {
       setTimeout(function () {
         navBackground.classList.toggle('closed');
@@ -245,9 +249,67 @@
 
 
     // FUNCTION FOR MULTIPLYING 
-    
+    let plus = document.querySelectorAll('.fa-solid.fa-plus');
+    let minus = document.querySelectorAll('.fa-solid.fa-minus')
+    let val = 1;
+    let priceResult;
 
 
+    plus.forEach(btnPlus => {
+
+      btnPlus.addEventListener('click', function () {
+
+        let divParent = btnPlus.parentElement;
+        let productParent = btnPlus.parentElement.parentElement;
+
+        let quantityNumb = Number(divParent.querySelector('.quantity').innerHTML);
+        let priceTag = Number(productParent.querySelector('.navPrice').innerHTML);
+        let inputValue = Number(productParent.querySelector('input').value);
+
+        val = 1 + quantityNumb;
+
+        divParent.querySelector('.quantity').innerHTML = val;
+
+
+        priceResult = inputValue * val;
+
+        productParent.querySelector('.navPrice').innerHTML = Number(priceResult);
+
+      });
+
+    });
+    // LOGIC FOR THE PLUS
+
+
+    // LOGIC FOR THE MINUS
+    minus.forEach(btnMinus => {
+
+
+      btnMinus.addEventListener('click', function () {
+
+        let divParent = btnMinus.parentElement;
+        let productParent = btnMinus.parentElement.parentElement;
+
+        let quantityNumb = Number(divParent.querySelector('.quantity').innerHTML);
+        let priceTag = Number(productParent.querySelector('.navPrice').innerHTML);
+        let inputValue = Number(productParent.querySelector('input').value);
+
+        val = quantityNumb - 1;
+
+        if (val < 1) {
+          val = 1;
+        }
+
+        divParent.querySelector('.quantity').innerHTML = val;
+
+
+        priceResult = inputValue * val;
+
+        productParent.querySelector('.navPrice').innerHTML = Number(priceResult);
+
+      });
+
+    });
     // FUNCTION FOR MULTIPLYING
 
 
