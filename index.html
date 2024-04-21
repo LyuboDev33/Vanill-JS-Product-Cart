@@ -25,7 +25,7 @@
 
 
       <div class="allProducts">
-
+        <!-- 
         <template>
           <div class="product">
             <img class="image" src="https://lubodev.com/images/lyuboimage.jpg">
@@ -33,7 +33,7 @@
             <p class="title">Product 1</p>
             <button class="addProductBtn">Add To Cart</button>
           </div>
-        </template>
+        </template> -->
 
 
       </div>
@@ -47,18 +47,20 @@
         <div class="navProductList">
           <p class="emptyCart"></p>
 
-          <!-- <div class="navProduct">
-            <img class="navImage" src="https://lubodev.com/images/lyuboimage.jpg">
-            <p class="navPrice">20</p>
-            <input value="20" type="hidden">
-            <div class="plusMinusDiv">
-              <i class="fa-solid fa-minus"></i>
-              <p class="quantity">1</p>
-              <i class="fa-solid fa-plus"></i>
+          <!-- <template>
+            <div class="navProduct">
+              <img class="navImage" src="https://lubodev.com/images/lyuboimage.jpg">
+              <p class="navPrice">20</p>
+              <input value="20" type="hidden">
+              <div class="plusMinusDiv">
+                <i class="fa-solid fa-minus"></i>
+                <p class="quantity">1</p>
+                <i class="fa-solid fa-plus"></i>
+              </div>
+              <p class="navTitle">Blqblq blq blq</p>
+              <button class="removeProduct">Remove product</button>
             </div>
-            <p class="navTitle">Blqblq blq blq</p>
-            <button class="removeProduct">Remove product</button>
-          </div> -->
+          </template> -->
 
 
         </div>
@@ -66,12 +68,12 @@
 
         <div class="checkoutPrice">
           <div class="totalCalc">
-            <p>Общо</p>
+            <p>Total</p>
             <p class="totalSum"></p>
           </div>
 
           <div class="goToPayment">
-            Към плащане
+            Proceed to checkout
           </div>
 
         </div>
@@ -81,24 +83,14 @@
     </div>
 
 
-
-
   </main>
-
-  <!-- POP UP WHEN PRODUCT IS ADDED -->
-
-  <div></div>
-
-  <!-- POP UP WHEN PRODUCT IS ADDED -->
-
-
 
 
   <script>
 
     let navProductList = document.querySelector('.navProductList');
-    let productsInsideCart = document.querySelectorAll('.navProduct');
-    let numbCart = document.querySelector('.numbCart')
+    let numbCart = document.querySelector('.numbCart');
+    let totalSum = document.querySelector('.totalSum');
 
     let cart = document.querySelector('#shopCart');
     let navBackground = document.querySelector('.navBackground')
@@ -108,7 +100,48 @@
     let allProducts = document.querySelector('.allProducts');
     let emptyCart = document.querySelector('.emptyCart');
 
-    if (productsInsideCart.length > 0) {
+
+    if (JSON.parse(sessionStorage.getItem('productArray')) != null) {
+      let sessionProducts = JSON.parse(sessionStorage.getItem('productArray'));
+      emptyCart.style.display = "none";
+
+      let productTitles = sessionProducts.map(product => product.prodTitle);
+
+
+      for (let k = 0; k < sessionProducts.length; k++) {
+        numbCart.innerHTML = sessionProducts.length;
+
+        if (productTitles.indexOf(sessionProducts[k].prodTitle) !== k) {
+          alert('Продуктът вече добавен в количката!');
+        } else {
+          navProductList.innerHTML += (
+            `<div class="navProduct">
+                    <img class="navImage" src="${sessionProducts[k].prodImg}">
+                    <p class="navPrice">${sessionProducts[k].prodPrice} $</p>
+                    <input value="${sessionProducts[k].prodPrice}" type="hidden">
+                    <div class="plusMinusDiv">
+                        <i class="fa-solid fa-minus"></i>
+                        <p class="quantity">1</p>
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <p class="navTitle">${sessionProducts[k].prodTitle}</p>
+                    <button class="removeProduct">Remove product</button>
+                </div>`
+          );
+        }
+      }
+    }
+
+
+
+
+
+
+    let productsInsideCart = document.querySelectorAll('.navProduct');
+
+    if(JSON.parse(sessionStorage.getItem('productArray')).length=== 0) { }
+
+    if (productsInsideCart.length > 0 && JSON.parse(sessionStorage.getItem('productArray')).length === null) {
 
       numbCart.innerHTML = productsInsideCart.length;
 
@@ -116,13 +149,20 @@
 
     } else if (productsInsideCart.length === 0) {
 
+      emptyCart.style.display = "flex";
+
       emptyCart.innerHTML = "Your cart is empty!";
       navProductList.style.display = "flex";
       navProductList.style.alignItems = "flex-start";
       navProductList.style.justifyContent = "center";
 
+
       numbCart.innerHTML = 0;
     }
+
+
+    console.log(productsInsideCart.length);
+
 
 
     fetch('https://fakestoreapi.com/products')
@@ -134,7 +174,6 @@
 
         for (let i = 0; i < products.length; i++) {
 
-
           let image = products[i].image;
           let price = Number(products[i].price);
           let name = products[i].title;
@@ -144,6 +183,7 @@
           <img class="image" src="${image}">
           <p class="price">${price} $</p>
           <p class="title">${name}</p>
+          <input value='${price}' type='hidden'>
           <button class="addProductBtn">Add To Cart</button>
         </div>
           `);
@@ -152,20 +192,23 @@
 
         let addProductBtn = document.querySelectorAll('.addProductBtn');
 
+
         let addedTitle;
         let addedPrice;
         let addedImage;
-
+        let addedInput;
 
         addProductBtn.forEach(button => {
 
-
-
           button.addEventListener('click', function () {
 
-            addedTitle = button.parentElement.querySelector('.title').textContent;
-            addedImage = button.parentElement.querySelector('.image').getAttribute('src');
-            addedPrice = parseFloat(button.parentElement.querySelector('.price').textContent);
+            addedTitle = this.parentElement.querySelector('.title').textContent;
+            addedImage = this.parentElement.querySelector('.image').getAttribute('src');
+            addedPrice = parseFloat(this.parentElement.querySelector('.price').textContent);
+            addedInput = parseFloat(this.parentElement.querySelector('input').value);
+
+
+
 
             let productArray = JSON.parse(sessionStorage.getItem('productArray'));
             if (!productArray) {
@@ -178,13 +221,64 @@
               prodPrice: addedPrice
             };
 
-            productArray.push(productObject);
 
-            sessionStorage.setItem('productArray', JSON.stringify(productArray));
+            // let addedProduct = document.querySelector('.navTitle').textContent;
+            // console.log(addedTitle);
 
+            let checkedProduct = document.querySelectorAll('.navProduct');
+
+            for (let d = 0; d < checkedProduct.length; d++) {
+
+              let navTitleElement = checkedProduct[d].querySelector('.navTitle').innerHTML;
+
+              if (navTitleElement.includes(addedTitle)) {
+
+                alert('Продуктът вече е добавен')
+
+                return;
+
+              }
+
+            }
+
+            emptyCart.remove();
+            navProductList.style.display = 'grid';
+
+
+            navProductList.innerHTML +=
+              `<div class="navProduct">
+        <img class="navImage" src="${addedImage}">
+        <p class="navPrice">${addedPrice} $</p>
+        <input value="${addedPrice}" type="hidden">
+        <div class="plusMinusDiv">
+            <i class="fa-solid fa-minus"></i>
+            <p class="quantity">1</p>
+            <i class="fa-solid fa-plus"></i>
+        </div>
+        <p class="navTitle">${addedTitle}</p>
+        <button class="removeProduct">Remove product</button>
+        </div>`;
+
+            if (navProductList) {
+              productArray.push(productObject);
+
+              sessionStorage.setItem('productArray', JSON.stringify(productArray));
+
+              let sessionProducts = JSON.parse(sessionStorage.getItem('productArray'));
+              numbCart.innerHTML = JSON.parse(sessionStorage.getItem('productArray')).length;
+
+
+            }
+
+
+
+            total();
 
             openNavBar();
 
+            doMath();
+
+            deleteProduct();
 
           });
 
@@ -193,10 +287,35 @@
 
       });
 
-    let sessionProducts = JSON.parse(sessionStorage.getItem('productArray'));
 
-    
 
+
+    // FUNCTION FOR HANDLING TOTAL PRICE
+
+    let sumArray = [];
+
+    function total() {
+      let products = navProductList.querySelectorAll('.navProduct');
+      let total = 0;
+
+      products.forEach(product => {
+
+        let price = parseFloat(product.querySelector('.navPrice').innerHTML);
+
+        total += price;
+
+        totalSum.innerHTML = parseFloat(total.toFixed(2)) + " $";
+
+      });
+
+
+    }
+
+    total();
+
+
+
+    // FUNCTION FOR OPENING THE RIGHT NAVBAR
     cart.addEventListener('click', function () {
 
       openNavBar();
@@ -248,69 +367,119 @@
     // FUNCTION FOR CLOSING THE RIGHT NAVBAR
 
 
-    // FUNCTION FOR MULTIPLYING 
-    let plus = document.querySelectorAll('.fa-solid.fa-plus');
-    let minus = document.querySelectorAll('.fa-solid.fa-minus')
-    let val = 1;
-    let priceResult;
+    function doMath() {
+      // FUNCTION FOR MULTIPLYING 
+      let plus = document.querySelectorAll('.fa-solid.fa-plus');
+      let minus = document.querySelectorAll('.fa-solid.fa-minus')
+      let val = 1;
+      let priceResult;
 
 
-    plus.forEach(btnPlus => {
+      plus.forEach(btnPlus => {
 
-      btnPlus.addEventListener('click', function () {
+        btnPlus.addEventListener('click', function () {
 
-        let divParent = btnPlus.parentElement;
-        let productParent = btnPlus.parentElement.parentElement;
+          let divParent = btnPlus.parentElement;
+          let productParent = btnPlus.parentElement.parentElement;
 
-        let quantityNumb = Number(divParent.querySelector('.quantity').innerHTML);
-        let priceTag = Number(productParent.querySelector('.navPrice').innerHTML);
-        let inputValue = Number(productParent.querySelector('input').value);
+          let quantityNumb = parseFloat(divParent.querySelector('.quantity').innerHTML);
+          let priceTag = parseFloat(productParent.querySelector('.navPrice').innerHTML);
+          let inputValue = parseFloat(productParent.querySelector('input').value);
 
-        val = 1 + quantityNumb;
+          let fin = 0;
+          fin = inputValue;
 
-        divParent.querySelector('.quantity').innerHTML = val;
-
-
-        priceResult = inputValue * val;
-
-        productParent.querySelector('.navPrice').innerHTML = Number(priceResult);
-
-      });
-
-    });
-    // LOGIC FOR THE PLUS
+          totalSum.innerHTML = (parseFloat(totalSum.innerHTML) + fin).toFixed(2) + " $";
 
 
-    // LOGIC FOR THE MINUS
-    minus.forEach(btnMinus => {
+          val = 1 + quantityNumb;
+
+          divParent.querySelector('.quantity').innerHTML = val;
 
 
-      btnMinus.addEventListener('click', function () {
 
-        let divParent = btnMinus.parentElement;
-        let productParent = btnMinus.parentElement.parentElement;
-
-        let quantityNumb = Number(divParent.querySelector('.quantity').innerHTML);
-        let priceTag = Number(productParent.querySelector('.navPrice').innerHTML);
-        let inputValue = Number(productParent.querySelector('input').value);
-
-        val = quantityNumb - 1;
-
-        if (val < 1) {
-          val = 1;
-        }
-
-        divParent.querySelector('.quantity').innerHTML = val;
+          priceResult = (inputValue * val) + " $";
 
 
-        priceResult = inputValue * val;
 
-        productParent.querySelector('.navPrice').innerHTML = Number(priceResult);
+          productParent.querySelector('.navPrice').innerHTML = parseFloat(priceResult) + " $";
+
+
+
+        });
 
       });
+      // LOGIC FOR THE PLUS
 
-    });
-    // FUNCTION FOR MULTIPLYING
+
+      // LOGIC FOR THE MINUS
+      minus.forEach(btnMinus => {
+
+
+        btnMinus.addEventListener('click', function () {
+
+          let divParent = btnMinus.parentElement;
+          let productParent = btnMinus.parentElement.parentElement;
+
+          let quantityNumb = Number(divParent.querySelector('.quantity').innerHTML);
+          let priceTag = parseFloat(productParent.querySelector('.navPrice').innerHTML);
+          let inputValue = Number(productParent.querySelector('input').value);
+
+
+
+          val = quantityNumb - 1;
+
+          if (val < 1) {
+            val = 1;
+            totalSum.innerHTML = parseFloat(totalSum.innerHTML).toFixed(2) + " $";
+            return;
+          }
+
+          let fin = 0;
+          fin = inputValue;
+
+          totalSum.innerHTML = (parseFloat(totalSum.innerHTML) - fin).toFixed(2) + " $";
+
+
+
+          divParent.querySelector('.quantity').innerHTML = val;
+
+
+          priceResult = inputValue * val;
+
+          productParent.querySelector('.navPrice').innerHTML = Number(priceResult.toFixed(2)) + " $";
+
+        });
+
+      });
+      // FUNCTION FOR MULTIPLYING
+    } doMath();
+
+
+    function deleteProduct() {
+      let removeProduct = document.querySelectorAll('.removeProduct');
+
+      removeProduct.forEach(removeBtn => {
+        let removeParent = removeBtn.closest('div');
+
+        removeBtn.addEventListener('click', function () {
+          let doneProd = removeParent.querySelector('.navTitle');
+          let removePrice = parseFloat(removeParent.querySelector('.navPrice').innerHTML);
+          let removeSessionProducts = JSON.parse(sessionStorage.getItem('productArray'));
+
+          let updatedProducts = removeSessionProducts.filter(item => item.prodTitle !== doneProd.innerHTML);
+
+          sessionStorage.setItem('productArray', JSON.stringify(updatedProducts));
+
+          totalSum.innerHTML = (parseFloat(totalSum.innerHTML + " $") - removePrice).toFixed(2) + " $";
+          numbCart.innerHTML -= 1;
+          removeParent.remove();
+
+        })
+      })
+    }
+
+    deleteProduct();
 
 
   </script>
